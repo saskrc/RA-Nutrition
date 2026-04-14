@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NutriCare RA</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,400;0,600;1,300&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sage:#4a7c59;--sage-l:#e8f2eb;--sage-m:#a8c9b0;
+  --amber:#c97d2e;--amber-l:#fdf3e3;
+  --cream:#faf8f3;--ink:#1e2019;--ink-m:#4a4d3e;--ink-l:#8a8d7e;
+  --border:#e2ddd4;--card:#ffffff;
+  --red:#c0392b;--red-l:#fdf0ef;
+  --blue:#3b6ea5;--blue-l:#eef2fb;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh;}
+.shell{display:flex;height:100vh;overflow:hidden;}
+.sidebar{width:210px;flex-shrink:0;background:var(--ink);display:flex;flex-direction:column;padding:24px 0;}
+.s-logo{padding:0 22px 24px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:16px;}
+.s-logo-title{font-family:'Fraunces',serif;font-size:19px;font-weight:600;color:#fff;}
+.s-logo-sub{font-size:10px;color:rgba(255,255,255,.35);text-transform:uppercase;letter-spacing:.09em;margin-top:2px;}
+.s-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:rgba(255,255,255,.2);padding:14px 22px 5px;font-weight:500;}
+.s-item{display:flex;align-items:center;gap:9px;padding:9px 22px;cursor:pointer;font-size:13px;color:rgba(255,255,255,.45);border-left:2px solid transparent;transition:all .15s;}
+.s-item:hover{color:rgba(255,255,255,.8);background:rgba(255,255,255,.04);}
+.s-item.active{color:#fff;border-left-color:var(--sage-m);background:rgba(255,255,255,.06);}
+.s-icon{font-size:15px;width:18px;text-align:center;}
+.ai-badge{font-size:9px;background:var(--sage);color:#fff;padding:1px 5px;border-radius:6px;margin-left:auto;letter-spacing:.04em;}
+.main{flex:1;overflow-y:auto;background:var(--cream);}
+.page{display:none;padding:34px 38px;}
+.page.active{display:block;}
+.pg-title{font-family:'Fraunces',serif;font-size:28px;font-weight:300;color:var(--ink);margin-bottom:3px;letter-spacing:-.4px;}
+.pg-sub{font-size:13px;color:var(--ink-l);margin-bottom:26px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px;}
+.card-title{font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:.07em;color:var(--ink);margin-bottom:14px;}
+.stat-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;}
+.stat-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-l);margin-bottom:5px;}
+.stat-val{font-family:'Fraunces',serif;font-size:24px;font-weight:600;color:var(--ink);}
+.stat-det{font-size:11px;color:var(--ink-l);margin-top:2px;}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.today-item{display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-bottom:1px solid var(--border);}
+.today-item:last-child{border-bottom:none;}
+.dot{width:7px;height:7px;border-radius:50%;margin-top:5px;flex-shrink:0;}
+.d-b{background:var(--amber)}.d-s{background:var(--sage)}.d-l{background:#5b7db1}.d-d{background:#8b5e83}
+.ti-name{font-size:13px;font-weight:500;color:var(--ink);}
+.ti-sub{font-size:11px;color:var(--ink-l);margin-top:1px;}
+.tip-item{display:flex;gap:9px;padding:9px 0;border-bottom:1px solid var(--border);font-size:12px;color:var(--ink-m);line-height:1.55;}
+.tip-item:last-child{border-bottom:none;}
+.day-tabs{display:flex;gap:5px;margin-bottom:20px;flex-wrap:wrap;}
+.dtab{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:500;border:1px solid var(--border);background:var(--card);cursor:pointer;color:var(--ink-m);transition:all .15s;}
+.dtab:hover{border-color:var(--sage);color:var(--sage);}
+.dtab.active{background:var(--sage);border-color:var(--sage);color:#fff;}
+.meals-list{display:flex;flex-direction:column;gap:10px;}
+.mc{background:var(--card);border:1px solid var(--border);border-radius:13px;overflow:hidden;transition:box-shadow .15s;}
+.mc:hover{box-shadow:0 3px 14px rgba(0,0,0,.06);}
+.mc-head{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;}
+.badge{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.08em;padding:3px 9px;border-radius:9px;flex-shrink:0;min-width:76px;text-align:center;}
+.b-b{background:var(--amber-l);color:var(--amber)}.b-s{background:var(--sage-l);color:var(--sage)}.b-l{background:var(--blue-l);color:var(--blue)}.b-d{background:#f5eef8;color:#7b4f8a}
+.mc-name{font-size:14px;font-weight:500;color:var(--ink);flex:1;}
+.mc-cal{font-size:11px;color:var(--ink-l);flex-shrink:0;}
+.mc-chev{font-size:11px;color:var(--ink-l);transition:transform .2s;flex-shrink:0;}
+.mc.open .mc-chev{transform:rotate(180deg);}
+.mc-body{display:none;border-top:1px solid var(--border);}
+.mc.open .mc-body{display:block;}
+.mc-inner{display:grid;grid-template-columns:1fr 1fr;}
+.mc-left{padding:18px;border-right:1px solid var(--border);}
+.mc-right{padding:18px;}
+.mc-desc{font-size:13px;color:var(--ink-m);line-height:1.6;margin-bottom:12px;}
+.chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
+.chip{font-size:11px;padding:2px 8px;border-radius:7px;background:var(--sage-l);color:var(--sage);font-weight:500;}
+.mini-ttl{font-size:10px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-l);margin-bottom:8px;font-weight:500;}
+.ing-list{list-style:none;}
+.ing-list li{font-size:12px;color:var(--ink-m);padding:3px 0;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:7px;}
+.ing-list li:last-child{border-bottom:none;}
+.ing-list li::before{content:'';width:4px;height:4px;border-radius:50%;background:var(--sage-m);flex-shrink:0;}
+.steps-ol{list-style:none;counter-reset:s;}
+.steps-ol li{font-size:12px;color:var(--ink-m);padding:7px 0 7px 30px;border-bottom:1px solid var(--border);position:relative;line-height:1.5;counter-increment:s;}
+.steps-ol li:last-child{border-bottom:none;}
+.steps-ol li::before{content:counter(s);position:absolute;left:0;top:7px;width:19px;height:19px;border-radius:50%;background:var(--sage);color:#fff;font-size:10px;font-weight:500;display:flex;align-items:center;justify-content:center;}
+.log-btn{font-size:11px;padding:5px 12px;border-radius:7px;border:1px solid var(--sage);color:var(--sage);background:transparent;cursor:pointer;margin-top:8px;transition:all .15s;}
+.log-btn:hover{background:var(--sage);color:#fff;}
+.refresh-bar{display:flex;align-items:center;justify-content:space-between;background:var(--sage-l);border:1px solid var(--sage-m);border-radius:10px;padding:12px 16px;margin-bottom:18px;}
+.refresh-info{font-size:12px;color:var(--ink-m);}
+.refresh-info strong{color:var(--sage);font-weight:500;}
+.btn-ai{font-size:12px;padding:7px 16px;border-radius:8px;background:var(--sage);color:#fff;border:none;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:6px;transition:background .15s;}
+.btn-ai:hover{background:#3d6b4a;}
+.btn-ai:disabled{opacity:.6;cursor:not-allowed;}
+.spinner{width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ai-loading{text-align:center;padding:40px 20px;color:var(--ink-l);}
+.ai-loading .spin-big{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--sage);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 12px;}
+.ai-loading p{font-size:13px;font-style:italic;}
+.craving-tags-row{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;}
+.c-tag{font-size:12px;padding:5px 13px;border-radius:20px;border:1px solid var(--border);background:var(--card);cursor:pointer;color:var(--ink-m);transition:all .15s;}
+.c-tag:hover{border-color:var(--amber);color:var(--amber);}
+.c-tag.sel{background:var(--amber);border-color:var(--amber);color:#fff;}
+.craving-input-row{display:flex;gap:10px;align-items:center;margin-bottom:10px;}
+.c-input{flex:1;border:1px solid var(--border);border-radius:9px;padding:9px 13px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:var(--cream);outline:none;}
+.c-input:focus{border-color:var(--amber);}
+.btn-find{font-size:13px;padding:9px 20px;border-radius:9px;background:var(--amber);color:#fff;border:none;cursor:pointer;font-weight:500;white-space:nowrap;display:flex;align-items:center;gap:7px;transition:background .15s;}
+.btn-find:hover{background:#b06a24;}
+.btn-find:disabled{opacity:.6;cursor:not-allowed;}
+.c-spin{width:13px;height:13px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+.cr-card{background:var(--card);border:1px solid var(--border);border-radius:13px;overflow:hidden;margin-bottom:10px;}
+.cr-head{display:flex;align-items:center;gap:12px;padding:14px 18px;cursor:pointer;}
+.cr-name{font-size:14px;font-weight:500;color:var(--ink);flex:1;}
+.cr-flavor{font-size:11px;padding:2px 9px;border-radius:8px;background:var(--amber-l);color:var(--amber);font-weight:500;flex-shrink:0;}
+.cr-body{display:none;border-top:1px solid var(--border);}
+.cr-card.open .cr-body{display:block;}
+.cr-card.open .mc-chev{transform:rotate(180deg);}
+.empty-c{font-size:13px;color:var(--ink-l);text-align:center;padding:32px 20px;font-style:italic;}
+.shop-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.btn-out{font-size:12px;padding:7px 15px;border-radius:8px;border:1px solid var(--sage);color:var(--sage);background:transparent;cursor:pointer;}
+.btn-out:hover{background:var(--sage-l);}
+.btn-prim{font-size:12px;padding:7px 15px;border-radius:8px;background:var(--sage);color:#fff;border:none;cursor:pointer;}
+.btn-prim:hover{background:#3d6b4a;}
+.shop-cat{margin-bottom:20px;}
+.shop-cat-ttl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-l);font-weight:500;margin-bottom:8px;padding-bottom:5px;border-bottom:1px solid var(--border);}
+.sh-item{display:flex;align-items:center;gap:11px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.sh-item:last-child{border-bottom:none;}
+.sh-check{width:17px;height:17px;border-radius:4px;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.sh-check.on{background:var(--sage);border-color:var(--sage);}
+.sh-check.on::after{content:'✓';color:#fff;font-size:10px;font-weight:500;}
+.sh-name{font-size:13px;color:var(--ink);flex:1;}
+.sh-item.on .sh-name{color:var(--ink-l);text-decoration:line-through;}
+.sh-qty{font-size:11px;color:var(--ink-l);}
+.trk-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.log-item{display:flex;align-items:center;gap:9px;padding:8px 0;border-bottom:1px solid var(--border);}
+.log-item:last-child{border-bottom:none;}
+.log-t{font-size:11px;color:var(--ink-l);width:46px;flex-shrink:0;}
+.log-n{font-size:13px;color:var(--ink);flex:1;}
+.log-x{font-size:11px;color:var(--ink-l);cursor:pointer;padding:2px 5px;border-radius:4px;}
+.log-x:hover{background:var(--red-l);color:var(--red);}
+.qa-item{display:flex;align-items:center;gap:9px;padding:7px 0;border-bottom:1px solid var(--border);}
+.qa-item:last-child{border-bottom:none;}
+.qa-type{font-size:11px;color:var(--ink-l);width:60px;flex-shrink:0;}
+.qa-name{font-size:12px;color:var(--ink);flex:1;}
+.qa-add{font-size:11px;padding:3px 10px;border-radius:6px;border:1px solid var(--sage);color:var(--sage);background:transparent;cursor:pointer;}
+.qa-add:hover{background:var(--sage);color:#fff;}
+.empty{font-size:13px;color:var(--ink-l);text-align:center;padding:18px 0;font-style:italic;}
+.sym-row{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--border);}
+.sym-row:last-child{border-bottom:none;}
+.sym-lbl{font-size:13px;color:var(--ink);flex:1;}
+.sym-scale{display:flex;gap:4px;}
+.sdot{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border);cursor:pointer;font-size:9px;font-weight:500;display:flex;align-items:center;justify-content:center;color:var(--ink-l);transition:all .15s;}
+.sdot.s0{background:var(--sage);border-color:var(--sage);color:#fff;}
+.sdot.s1{background:var(--amber);border-color:var(--amber);color:#fff;}
+.sdot.s2{background:#e67e22;border-color:#e67e22;color:#fff;}
+.sdot.s3{background:var(--red);border-color:var(--red);color:#fff;}
+.notes-ta{width:100%;border:1px solid var(--border);border-radius:8px;padding:9px 11px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:var(--cream);resize:none;outline:none;line-height:1.6;margin-top:7px;}
+.notes-ta:focus{border-color:var(--sage);}
+.save-btn{margin-top:10px;font-size:12px;padding:7px 18px;border-radius:8px;background:var(--sage);color:#fff;border:none;cursor:pointer;font-weight:500;}
+.saved-ent{background:var(--sage-l);border-radius:8px;padding:9px 11px;margin-bottom:7px;font-size:12px;color:var(--ink-m);line-height:1.5;}
+.saved-ent-d{font-size:10px;color:var(--ink-l);margin-bottom:2px;}
+.fg-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px;margin-bottom:20px;}
+.fg-card{border-radius:10px;padding:13px 15px;font-size:12px;line-height:1.65;}
+.fg-g{background:var(--sage-l);color:#2d5a3d;}.fg-g strong{color:#1a3d28;}
+.fg-r{background:var(--red-l);color:#7a2020;}.fg-r strong{color:#5a1515;}
+.fg-a{background:var(--amber-l);color:#5a3a10;}.fg-a strong{color:#412402;}
+.fg-b{background:var(--blue-l);color:#2d3e6e;}.fg-b strong{color:#1a2a4a;}
+.main::-webkit-scrollbar{width:4px;}
+.main::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px;}
+.err-bar{font-size:12px;color:var(--red);padding:8px 12px;background:var(--red-l);border-radius:8px;margin-top:10px;}
+</style>
+</head>
+<body>
+<div class="shell">
+<nav class="sidebar">
+  <div class="s-logo">
+    <div class="s-logo-title">NutriCare RA</div>
+    <div class="s-logo-sub">Rheumatoid Arthritis</div>
+  </div>
+  <div class="s-label">Overview</div>
+  <div class="s-item active" onclick="nav('dashboard',this)"><span class="s-icon">🏠</span>Dashboard</div>
+  <div class="s-label">Nutrition</div>
+  <div class="s-item" onclick="nav('meals',this)"><span class="s-icon">🥗</span>Meal Plan<span class="ai-badge">AI</span></div>
+  <div class="s-item" onclick="nav('cravings',this)"><span class="s-icon">✨</span>Cravings<span class="ai-badge">AI</span></div>
+  <div class="s-item" onclick="nav('shopping',this)"><span class="s-icon">🛒</span>Shopping List</div>
+  <div class="s-label">Wellness</div>
+  <div class="s-item" onclick="nav('tracker',this)"><span class="s-icon">📋</span>Meal Tracker</div>
+  <div class="s-item" onclick="nav('symptoms',this)"><span class="s-icon">💊</span>Symptom Log</div>
+  <div class="s-label">Info</div>
+  <div class="s-item" onclick="nav('foods',this)"><span class="s-icon">⚠️</span>Foods Guide</div>
+</nav>
+
+<main class="main">
+
+<!-- DASHBOARD -->
+<div id="pg-dashboard" class="page active">
+  <div class="pg-title">Good morning 🌿</div>
+  <div class="pg-sub">Anti-inflammatory plan · Lactose-free · Gluten-free · No red meat</div>
+  <div class="stat-row">
+    <div class="stat"><div class="stat-lbl">Meals logged today</div><div class="stat-val" id="d-count">0</div><div class="stat-det">of 8 planned</div></div>
+    <div class="stat"><div class="stat-lbl">Est. daily calories</div><div class="stat-val">~1,760</div><div class="stat-det">kcal target</div></div>
+    <div class="stat"><div class="stat-lbl">Omega-3 sources</div><div class="stat-val">4</div><div class="stat-det">today's meals</div></div>
+    <div class="stat"><div class="stat-lbl">Inflammation score</div><div class="stat-val" style="color:var(--sage)">★ Low</div><div class="stat-det">All meals optimized</div></div>
+  </div>
+  <div class="dash-grid">
+    <div class="card"><div class="card-title">Today's menu</div><div id="d-today"></div></div>
+    <div class="card">
+      <div class="card-title">Daily health tips</div>
+      <div class="tip-item"><span>💧</span>Drink 8 glasses of water or herbal teas. Turmeric and ginger tea are ideal for morning stiffness.</div>
+      <div class="tip-item"><span>🌿</span>Always pair turmeric with black pepper — increases curcumin absorption by up to 2,000%.</div>
+      <div class="tip-item"><span>🐟</span>Aim for fatty fish at least 3× this week. EPA and DHA are the most studied nutrients for RA.</div>
+      <div class="tip-item"><span>🥜</span>A small handful of walnuts before bed may reduce morning joint stiffness.</div>
+      <div class="tip-item"><span>🚫</span>Avoid refined sugars and processed foods — they directly trigger inflammatory markers.</div>
+    </div>
+  </div>
+</div>
+
+<!-- MEAL PLAN -->
+<div id="pg-meals" class="page">
+  <div class="pg-title">Weekly meal plan</div>
+  <div class="pg-sub">AI-powered — generates fresh anti-inflammatory recipes every week</div>
+  <div class="refresh-bar">
+    <div class="refresh-info"><strong id="rs-status">Ready to generate</strong> · Last updated: <span id="rs-date">never</span></div>
+    <button class="btn-ai" id="ref-btn" onclick="refreshPlan()">
+      <div class="spinner" id="ref-spin"></div>
+      <span id="ref-txt">✦ Generate this week's plan</span>
+    </button>
+  </div>
+  <div class="day-tabs" id="day-tabs"></div>
+  <div class="meals-list" id="meals-list"><div class="empty" style="padding:36px 0;">Click "Generate this week's plan" to get AI-powered recipes tailored for RA, or use the built-in plan which loads automatically.</div></div>
+</div>
+
+<!-- CRAVINGS -->
+<div id="pg-cravings" class="page">
+  <div class="pg-title">Craving finder ✨</div>
+  <div class="pg-sub">Tell me what you're craving — I'll find anti-inflammatory recipes that actually satisfy it</div>
+  <div class="card" style="margin-bottom:20px;">
+    <div class="card-title">What are you craving right now?</div>
+    <div class="craving-tags-row" id="c-tags"></div>
+    <div class="craving-input-row">
+      <input class="c-input" id="c-input" placeholder="e.g. something warm and spicy, creamy soup, crunchy snack..." onkeydown="if(event.key==='Enter')findRecipes()"/>
+      <button class="btn-find" id="c-btn" onclick="findRecipes()">
+        <div class="c-spin" id="c-spin"></div>
+        <span id="c-txt">Find recipes ↗</span>
+      </button>
+    </div>
+    <div style="font-size:11px;color:var(--ink-l);">All suggestions will be gluten-free, lactose-free, no red meat, and anti-inflammatory for RA.</div>
+  </div>
+  <div id="c-results"><div class="empty-c">Choose a craving above or type your own to get personalized anti-inflammatory recipe ideas.</div></div>
+</div>
+
+<!-- SHOPPING -->
+<div id="pg-shopping" class="page">
+  <div class="pg-title">Shopping list</div>
+  <div class="pg-sub">Full week of anti-inflammatory, lactose-free, gluten-free groceries</div>
+  <div class="shop-bar">
+    <span style="font-size:13px;color:var(--ink-m);">Week 1 · All meals included</span>
+    <div style="display:flex;gap:8px;">
+      <button class="btn-out" onclick="clearChecked()">Clear checked</button>
+      <button class="btn-prim" onclick="window.print()">Print list</button>
+    </div>
+  </div>
+  <div id="shop-cont"></div>
+</div>
+
+<!-- TRACKER -->
+<div id="pg-tracker" class="page">
+  <div class="pg-title">Meal tracker</div>
+  <div class="pg-sub">Log your meals throughout the day</div>
+  <div class="trk-grid">
+    <div class="card"><div class="card-title">Today's log</div><div id="meal-log"></div></div>
+    <div class="card"><div class="card-title">Quick add from today's plan</div><div id="quick-add"></div></div>
+  </div>
+</div>
+
+<!-- SYMPTOMS -->
+<div id="pg-symptoms" class="page">
+  <div class="pg-title">Symptom log</div>
+  <div class="pg-sub">Track how you feel each day to spot patterns with your diet</div>
+  <div class="trk-grid">
+    <div class="card">
+      <div class="card-title">Today's symptoms</div>
+      <div class="sym-row"><span class="sym-lbl">Joint pain</span><div class="sym-scale" id="sy-0"></div></div>
+      <div class="sym-row"><span class="sym-lbl">Morning stiffness</span><div class="sym-scale" id="sy-1"></div></div>
+      <div class="sym-row"><span class="sym-lbl">Fatigue level</span><div class="sym-scale" id="sy-2"></div></div>
+      <div class="sym-row"><span class="sym-lbl">Swelling</span><div class="sym-scale" id="sy-3"></div></div>
+      <textarea class="notes-ta" id="sym-notes" rows="3" placeholder="Notes (which joints, triggers, duration...)"></textarea>
+      <button class="save-btn" onclick="saveSymptom()">Save entry</button>
+    </div>
+    <div class="card"><div class="card-title">Recent entries</div><div id="sym-entries"><div class="empty">No entries yet. Start logging to track patterns.</div></div></div>
+  </div>
+</div>
+
+<!-- FOODS GUIDE -->
+<div id="pg-foods" class="page">
+  <div class="pg-title">Foods guide</div>
+  <div class="pg-sub">What to eat freely and what to avoid with rheumatoid arthritis</div>
+  <div class="fg-grid">
+    <div class="fg-card fg-g"><strong>✅ Anti-inflammatory stars</strong><br>Fatty fish (salmon, sardines, trout, mackerel), walnuts, flaxseeds, chia seeds, extra virgin olive oil, blueberries, tart cherries, strawberries, turmeric, ginger, garlic, spinach, kale, broccoli, sweet potato, quinoa, brown rice, lentils, chickpeas, green tea, avocado, pumpkin seeds.</div>
+    <div class="fg-card fg-r"><strong>🚫 Avoid or limit</strong><br>Refined sugar and sweets, gluten (wheat, barley, rye), dairy, red and processed meats, trans fats, vegetable seed oils (sunflower, corn), alcohol, excess salt, processed packaged foods. Nightshade vegetables in excess during flares (tomatoes, peppers, eggplant, potatoes).</div>
+    <div class="fg-card fg-a"><strong>💊 Nutrient priorities</strong><br>Omega-3 fatty acids (EPA &amp; DHA), Vitamin D, Vitamin C, Magnesium, Zinc, Curcumin (from turmeric), Selenium, Folate, Antioxidants (polyphenols, anthocyanins). Aim for a rainbow of plant foods daily.</div>
+    <div class="fg-card fg-b"><strong>🩺 Important notes</strong><br>Omega-3 foods may interact with blood thinners — consult her rheumatologist. Vitamin D supplementation is often needed. Some RA medications require monitoring certain foods. Always review major dietary changes with her doctor.</div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+// ── CLAUDE API ──
+async function callClaude(userPrompt, sysPrompt) {
+  const r = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1000,
+      system: sysPrompt,
+      messages: [{ role: "user", content: userPrompt }]
+    })
+  });
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  const d = await r.json();
+  return d.content.map(b => b.text || "").join("");
+}
+
+// ── FALLBACK DATA ──
+const FB = [
+  {type:"breakfast",label:"Breakfast",name:"Turmeric oatmeal with berries",cal:"~380 kcal",desc:"GF oats in coconut milk, topped with blueberries, walnuts, turmeric and cinnamon.",benefits:["Turmeric","Omega-3","Antioxidants"],ingredients:["½ cup GF rolled oats","1 cup coconut milk","½ cup blueberries","2 tbsp walnuts","¼ tsp turmeric","¼ tsp cinnamon","1 tsp honey"],steps:["Cook oats in coconut milk for 5 minutes, stirring until creamy.","Transfer to a bowl and let cool slightly.","Top with blueberries and walnuts.","Sprinkle turmeric and cinnamon evenly.","Drizzle honey and serve warm."]},
+  {type:"snack",label:"Snack 1",name:"Apple slices with almond butter",cal:"~180 kcal",desc:"Fresh apple with natural almond butter. Rich in polyphenols and healthy fats.",benefits:["Polyphenols","Healthy fats"],ingredients:["1 medium apple","1 tbsp natural almond butter"],steps:["Wash and core the apple.","Slice into wedges.","Serve with almond butter for dipping."]},
+  {type:"lunch",label:"Lunch",name:"Grilled salmon quinoa bowl",cal:"~520 kcal",desc:"Wild salmon over quinoa with baby spinach, cucumber, olive oil and fresh dill.",benefits:["Omega-3","Vitamin D","Iron"],ingredients:["150g wild salmon fillet","½ cup quinoa","2 cups baby spinach","½ cucumber, sliced","2 tbsp olive oil","Juice of ½ lemon","Fresh dill","Salt"],steps:["Cook quinoa with 1 cup water for 12 minutes. Fluff and cool.","Season salmon with salt and dill.","Grill salmon 4 minutes per side.","Toss spinach and cucumber with olive oil and lemon.","Add quinoa to the salad and mix.","Plate salad and lay salmon on top."]},
+  {type:"snack",label:"Snack 2",name:"Walnuts & green tea",cal:"~100 kcal",desc:"15g walnuts with unsweetened green tea, rich in EGCG anti-inflammatory compounds.",benefits:["Omega-3","EGCG"],ingredients:["15g walnuts (about 7 halves)","1 cup green tea (unsweetened)"],steps:["Heat water to 80°C — not boiling, as boiling destroys EGCG.","Steep green tea for 2–3 minutes.","Serve with walnuts on the side."]},
+  {type:"dinner",label:"Dinner 1",name:"Ginger chicken stir-fry & brown rice",cal:"~480 kcal",desc:"Chicken breast with ginger, garlic, broccoli, and bok choy in coconut aminos.",benefits:["Ginger","Anti-inflammatory","Fiber"],ingredients:["150g chicken breast, sliced","1 cup broccoli florets","1 cup bok choy, chopped","1 tbsp fresh ginger, grated","2 garlic cloves, minced","2 tbsp coconut aminos","1 tbsp coconut oil","½ cup brown rice"],steps:["Cook brown rice according to package (about 30 min).","Heat coconut oil in a wok over high heat.","Sauté garlic and ginger 1 minute until fragrant.","Add chicken and cook 5 minutes until golden.","Add broccoli and bok choy, stir-fry 4 minutes.","Pour coconut aminos and toss everything.","Serve over brown rice."]},
+  {type:"dinner",label:"Dinner 2",name:"Roasted pumpkin & carrot soup",cal:"~280 kcal",desc:"Smooth soup with roasted pumpkin, carrots, ginger and creamy coconut milk.",benefits:["Beta-carotene","Ginger","Gut health"],ingredients:["2 cups pumpkin, cubed","2 large carrots, chopped","1 tbsp fresh ginger","1 garlic clove","1 cup coconut milk","2 cups vegetable broth","1 tbsp olive oil","Salt and pepper"],steps:["Preheat oven to 200°C. Toss pumpkin and carrots with olive oil and roast 25 minutes.","Sauté garlic and ginger in olive oil for 2 minutes.","Add roasted vegetables and vegetable broth. Simmer 10 minutes.","Blend until completely smooth.","Stir in coconut milk, season, and serve warm."]},
+  {type:"dinner",label:"Dinner 3",name:"Baked cod, sweet potato & asparagus",cal:"~420 kcal",desc:"Herb-crusted cod with roasted sweet potato and asparagus drizzled with olive oil.",benefits:["Lean protein","Vitamin E","Fiber"],ingredients:["150g cod fillet","1 medium sweet potato, diced","8 asparagus spears","2 tbsp olive oil","Lemon zest","Fresh thyme and rosemary","Salt"],steps:["Preheat oven to 200°C.","Toss sweet potato with 1 tbsp olive oil. Roast 20 minutes.","Add asparagus to tray for the last 10 minutes.","Season cod with lemon zest, thyme, rosemary, and remaining oil.","Bake cod at 180°C for 15 minutes until it flakes easily.","Plate cod alongside sweet potato and asparagus."]},
+  {type:"snack",label:"Snack 3",name:"Cherry & chia pudding",cal:"~160 kcal",desc:"Tart cherries with chia seeds and oat milk. One of the best foods for joint pain.",benefits:["Anthocyanins","Omega-3","Joint relief"],ingredients:["½ cup tart cherries (fresh or frozen)","2 tbsp chia seeds","1 cup GF oat milk","1 tsp maple syrup"],steps:["Mix chia seeds with oat milk and maple syrup in a jar.","Stir well to prevent clumping.","Refrigerate for at least 2 hours, or overnight.","Top with tart cherries just before serving."]}
+];
+
+const DAY_NAMES = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+let PLAN = null;
+
+// ── WEEKLY AI PLAN ──
+async function refreshPlan() {
+  const btn = document.getElementById('ref-btn');
+  const spin = document.getElementById('ref-spin');
+  const txt = document.getElementById('ref-txt');
+  btn.disabled = true; spin.style.display = 'block'; txt.textContent = 'Generating...';
+  document.getElementById('meals-list').innerHTML = `<div class="ai-loading"><div class="spin-big"></div><p>Creating your weekly anti-inflammatory meal plan with fresh recipes...</p></div>`;
+
+  const sys = `You are an expert dietician specializing in rheumatoid arthritis. Respond ONLY with valid JSON — no markdown, no backticks, no explanation. All meals must be anti-inflammatory, gluten-free, lactose-free, no red meat. Prioritize omega-3 rich foods, turmeric, ginger, berries, leafy greens, fatty fish, lean poultry, legumes, olive oil.`;
+  const prompt = `Generate a fresh 7-day anti-inflammatory meal plan for a person with rheumatoid arthritis. Each day must have exactly 8 meals in this order: Breakfast, Snack 1, Lunch, Snack 2, Dinner 1, Dinner 2, Dinner 3, Snack 3. Make each day unique and varied. Use the types exactly as listed.
+
+Return ONLY this JSON (no markdown, no backticks):
+{"days":[{"dayName":"Monday","meals":[{"type":"breakfast","label":"Breakfast","name":"Recipe name","cal":"~380 kcal","desc":"Short description 1-2 sentences","benefits":["B1","B2","B3"],"ingredients":["amount ingredient"],"steps":["Step 1","Step 2","Step 3","Step 4","Step 5"]}]}]}`;
+
+  try {
+    const raw = await callClaude(prompt, sys);
+    const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    PLAN = parsed.days;
+    try { localStorage.setItem('ra_plan_v3', JSON.stringify(PLAN)); localStorage.setItem('ra_plan_date', new Date().toLocaleDateString()); } catch(e){}
+    document.getElementById('rs-status').textContent = '✦ Fresh AI plan loaded';
+    document.getElementById('rs-date').textContent = new Date().toLocaleDateString();
+    renderTabs(); renderMeals(0);
+  } catch(e) {
+    PLAN = DAY_NAMES.map(d => ({dayName:d, meals:FB}));
+    renderTabs(); renderMeals(0);
+    document.getElementById('rs-status').textContent = 'Using built-in plan';
+    document.getElementById('meals-list').insertAdjacentHTML('beforeend', '<div class="err-bar">Could not connect to AI. Check your internet connection and try again.</div>');
+  }
+  btn.disabled = false; spin.style.display = 'none'; txt.textContent = '✦ Refresh plan';
+}
+
+function loadCached() {
+  try {
+    const c = localStorage.getItem('ra_plan_v3');
+    if (c) {
+      PLAN = JSON.parse(c);
+      document.getElementById('rs-status').textContent = 'Loaded from cache';
+      document.getElementById('rs-date').textContent = localStorage.getItem('ra_plan_date') || '–';
+      renderTabs(); renderMeals(0); return;
+    }
+  } catch(e){}
+  PLAN = DAY_NAMES.map(d => ({dayName:d, meals:FB}));
+  document.getElementById('rs-status').textContent = 'Using built-in plan';
+  document.getElementById('rs-date').textContent = 'Built-in';
+  renderTabs(); renderMeals(0);
+}
+
+let curDay = 0;
+function renderTabs() {
+  if (!PLAN) return;
+  document.getElementById('day-tabs').innerHTML = PLAN.map((d,i) => `<div class="dtab ${i===0?'active':''}" onclick="switchDay(${i},this)">${d.dayName}</div>`).join('');
+}
+function switchDay(i, el) {
+  curDay = i;
+  document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  renderMeals(i);
+}
+function renderMeals(di) {
+  const list = document.getElementById('meals-list');
+  if (!PLAN || !PLAN[di]) { list.innerHTML = '<div class="empty">No plan loaded.</div>'; return; }
+  list.innerHTML = PLAN[di].meals.map((m,i) => {
+    const typeChar = (m.type||'s').charAt(0);
+    const ing = (m.ingredients||[]).map(x=>`<li>${x}</li>`).join('');
+    const stp = (m.steps||[]).map(x=>`<li>${x}</li>`).join('');
+    const bens = (m.benefits||[]).map(b=>`<span class="chip">${b}</span>`).join('');
+    return `<div class="mc" id="mc-${di}-${i}">
+      <div class="mc-head" onclick="toggle('mc-${di}-${i}')">
+        <span class="badge b-${typeChar}">${m.label||m.type}</span>
+        <span class="mc-name">${m.name}</span>
+        <span class="mc-cal">${m.cal||''}</span>
+        <span class="mc-chev">▼</span>
+      </div>
+      <div class="mc-body">
+        <div class="mc-inner">
+          <div class="mc-left">
+            <p class="mc-desc">${m.desc||''}</p>
+            <div class="chips">${bens}</div>
+            <div class="mini-ttl">Ingredients</div>
+            <ul class="ing-list">${ing}</ul>
+            <button class="log-btn" onclick="logMeal('${esc(m.name)}','${esc(m.label||m.type)}')">+ Log this meal</button>
+          </div>
+          <div class="mc-right">
+            <div class="mini-ttl">Step-by-step recipe</div>
+            <ol class="steps-ol">${stp}</ol>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggle(id) { document.getElementById(id).classList.toggle('open'); }
+function esc(s) { return (s||'').replace(/'/g,"\\'").replace(/"/g,'&quot;'); }
+
+// ── CRAVING FINDER ──
+const PRESETS = ["Something warm & comforting","Creamy & smooth","Spicy kick","Sweet treat","Light & fresh","Crunchy snack","Hearty & filling","Citrusy & bright","Savory umami","Cold & refreshing"];
+let selCravings = new Set();
+function initTags() {
+  document.getElementById('c-tags').innerHTML = PRESETS.map(t => `<div class="c-tag" onclick="toggleTag(this,'${t}')">${t}</div>`).join('');
+}
+function toggleTag(el, t) {
+  if(selCravings.has(t)) { selCravings.delete(t); el.classList.remove('sel'); }
+  else { selCravings.add(t); el.classList.add('sel'); }
+}
+async function findRecipes() {
+  const input = document.getElementById('c-input').value.trim();
+  const allCravings = [...selCravings, input].filter(Boolean).join(', ');
+  if (!allCravings) { alert('Please select or type a craving first!'); return; }
+  const btn = document.getElementById('c-btn');
+  const spin = document.getElementById('c-spin');
+  const txt = document.getElementById('c-txt');
+  btn.disabled = true; spin.style.display = 'block'; txt.textContent = 'Finding...';
+  document.getElementById('c-results').innerHTML = `<div class="ai-loading"><div class="spin-big"></div><p>Finding anti-inflammatory recipes that match your craving...</p></div>`;
+
+  const sys = `You are an expert dietician specializing in rheumatoid arthritis nutrition. Respond ONLY with valid JSON — no markdown, no backticks, no explanation. All recipes MUST be: anti-inflammatory, gluten-free, lactose-free, no red meat.`;
+  const prompt = `A patient with rheumatoid arthritis is craving: "${allCravings}".
+Find 3 anti-inflammatory recipes that genuinely satisfy this craving while being completely gluten-free, lactose-free, and containing no red meat. Each recipe should feel satisfying and actually address the craving described.
+
+Return ONLY this JSON (no markdown, no backticks):
+{"recipes":[{"name":"Recipe name","flavorMatch":"How it satisfies craving (5 words)","cal":"~300 kcal","desc":"Appealing description of taste and texture (2 sentences)","benefits":["B1","B2","B3"],"ingredients":["amount ingredient"],"steps":["Step 1","Step 2","Step 3","Step 4","Step 5"]}]}`;
+
+  try {
+    const raw = await callClaude(prompt, sys);
+    const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    renderCravings(parsed.recipes, allCravings);
+  } catch(e) {
+    document.getElementById('c-results').innerHTML = `<div class="err-bar">Could not connect to AI. Please check your internet connection and try again.</div>`;
+  }
+  btn.disabled = false; spin.style.display = 'none'; txt.textContent = 'Find recipes ↗';
+}
+function renderCravings(recipes, craving) {
+  const c = document.getElementById('c-results');
+  if (!recipes || !recipes.length) { c.innerHTML = '<div class="empty-c">No recipes found. Try a different craving.</div>'; return; }
+  c.innerHTML = `<div style="font-size:12px;color:var(--ink-l);margin-bottom:12px;">3 anti-inflammatory recipes for: <strong style="color:var(--amber)">"${craving}"</strong></div>` +
+  recipes.map((r,i) => {
+    const ing = (r.ingredients||[]).map(x=>`<li>${x}</li>`).join('');
+    const stp = (r.steps||[]).map(x=>`<li>${x}</li>`).join('');
+    const bens = (r.benefits||[]).map(b=>`<span class="chip">${b}</span>`).join('');
+    return `<div class="cr-card" id="cr-${i}">
+      <div class="cr-head" onclick="toggleCr('cr-${i}')">
+        <span class="cr-name">${r.name}</span>
+        <span class="cr-flavor">${r.flavorMatch||''}</span>
+        <span style="font-size:11px;color:var(--ink-l);margin-left:8px;flex-shrink:0;">${r.cal||''}</span>
+        <span class="mc-chev" style="margin-left:8px;flex-shrink:0;">▼</span>
+      </div>
+      <div class="cr-body">
+        <div class="mc-inner">
+          <div class="mc-left">
+            <p class="mc-desc">${r.desc||''}</p>
+            <div class="chips">${bens}</div>
+            <div class="mini-ttl">Ingredients</div>
+            <ul class="ing-list">${ing}</ul>
+            <button class="log-btn" onclick="logMeal('${esc(r.name)}','Craving pick')">+ Log this meal</button>
+          </div>
+          <div class="mc-right">
+            <div class="mini-ttl">Step-by-step recipe</div>
+            <ol class="steps-ol">${stp}</ol>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggleCr(id) { document.getElementById(id).classList.toggle('open'); }
+
+// ── SHOPPING ──
+const SHOP = {
+  "Fish & Proteins":[{n:"Wild-caught salmon fillets",q:"3 × 150g"},{n:"Cod fillets",q:"150g"},{n:"Trout fillets",q:"150g"},{n:"Sardines in olive oil (canned)",q:"2 cans"},{n:"Chicken breast",q:"300g"},{n:"Chicken thighs (skinless)",q:"4"},{n:"Ground turkey",q:"400g"}],
+  "Vegetables & Greens":[{n:"Baby spinach",q:"3 bags"},{n:"Kale",q:"2 bags"},{n:"Broccoli",q:"2 heads"},{n:"Bok choy",q:"2 bunches"},{n:"Asparagus",q:"2 bunches"},{n:"Sweet potato",q:"4 medium"},{n:"Bell peppers",q:"4"},{n:"Zucchini",q:"2"},{n:"Beets",q:"3"},{n:"Carrots",q:"4"},{n:"Celery",q:"1 bunch"},{n:"Cherry tomatoes",q:"2 punnets"},{n:"Pumpkin (cubed)",q:"500g"}],
+  "Fruits":[{n:"Blueberries (fresh/frozen)",q:"2 cups"},{n:"Tart cherries (fresh/frozen)",q:"1 cup"},{n:"Apples",q:"3"},{n:"Avocados",q:"4"},{n:"Lemons",q:"4"}],
+  "Grains & Legumes":[{n:"GF rolled oats",q:"500g"},{n:"Quinoa",q:"500g"},{n:"Brown rice",q:"500g"},{n:"GF rice cakes",q:"1 pack"},{n:"Red lentils",q:"500g"},{n:"Chickpeas (canned)",q:"2 cans"}],
+  "Nuts, Seeds & Oils":[{n:"Walnuts (raw)",q:"200g"},{n:"Natural almond butter",q:"1 jar"},{n:"Chia seeds",q:"200g"},{n:"Pumpkin seeds (raw)",q:"100g"},{n:"Ground flaxseed",q:"150g"},{n:"Tahini",q:"1 jar"},{n:"Extra virgin olive oil",q:"1 bottle"},{n:"Coconut oil",q:"1 jar"}],
+  "Dairy-free & Pantry":[{n:"Oat milk GF",q:"3 × 1L"},{n:"Coconut milk (canned)",q:"3 cans"},{n:"Coconut yogurt (unsweetened)",q:"2 pots"},{n:"Low-sodium vegetable broth",q:"2 × 1L"},{n:"Coconut aminos",q:"1 bottle"},{n:"Diced tomatoes (no salt, canned)",q:"2 cans"},{n:"Kalamata olives",q:"1 jar"},{n:"Maple syrup",q:"1 bottle"},{n:"Raw honey",q:"1 jar"}],
+  "Herbs & Spices":[{n:"Ground turmeric",q:"1 jar"},{n:"Ground ginger + fresh ginger root",q:"1 jar + root"},{n:"Ground cinnamon",q:"1 jar"},{n:"Black pepper",q:"1 grinder"},{n:"Ground cumin",q:"1 jar"},{n:"Smoked paprika",q:"1 jar"},{n:"Dried thyme + rosemary",q:"1 jar each"},{n:"Fresh herbs (dill, parsley, basil)",q:"1 bunch each"}],
+  "Beverages":[{n:"Green tea bags (unsweetened)",q:"1 box"},{n:"Ginger herbal tea",q:"1 box"},{n:"Unsweetened tart cherry juice",q:"1 bottle"}]
+};
+let chk = {};
+function renderShop() {
+  document.getElementById('shop-cont').innerHTML = Object.entries(SHOP).map(([cat,items]) => `
+    <div class="shop-cat"><div class="shop-cat-ttl">${cat}</div>
+    ${items.map((item,i) => { const k=cat+i; const on=chk[k];
+      return `<div class="sh-item ${on?'on':''}" onclick="toggleShop('${k}',this)">
+        <div class="sh-check ${on?'on':''}"></div>
+        <span class="sh-name">${item.n}</span><span class="sh-qty">${item.q}</span></div>`;
+    }).join('')}</div>`).join('');
+}
+function toggleShop(k, el) {
+  chk[k]=!chk[k]; el.classList.toggle('on');
+  el.querySelector('.sh-check').classList.toggle('on');
+  const nm=el.querySelector('.sh-name');
+  nm.style.textDecoration=chk[k]?'line-through':''; nm.style.color=chk[k]?'var(--ink-l)':'';
+}
+function clearChecked() { chk={}; renderShop(); }
+
+// ── TRACKER ──
+let mealLog = [];
+function logMeal(name, label) {
+  const t = new Date();
+  const time = t.getHours().toString().padStart(2,'0')+':'+t.getMinutes().toString().padStart(2,'0');
+  mealLog.unshift({name, label, time});
+  renderLog(); document.getElementById('d-count').textContent = mealLog.length;
+}
+function removeLog(i) { mealLog.splice(i,1); renderLog(); document.getElementById('d-count').textContent=mealLog.length; }
+function renderLog() {
+  document.getElementById('meal-log').innerHTML = mealLog.length
+    ? mealLog.map((m,i)=>`<div class="log-item"><span class="log-t">${m.time}</span><span class="log-n">${m.name}</span><span class="log-x" onclick="removeLog(${i})">✕</span></div>`).join('')
+    : '<div class="empty">No meals logged yet</div>';
+}
+function renderQA() {
+  document.getElementById('quick-add').innerHTML = FB.map(m => `
+    <div class="qa-item">
+      <span class="qa-type">${m.label}</span>
+      <span class="qa-name">${m.name}</span>
+      <button class="qa-add" onclick="logMeal('${esc(m.name)}','${m.label}')">Add</button>
+    </div>`).join('');
+}
+
+// ── DASHBOARD TODAY ──
+function renderToday() {
+  const typeMap = {breakfast:'b',snack:'s',lunch:'l',dinner:'d'};
+  document.getElementById('d-today').innerHTML = FB.map(m => `
+    <div class="today-item"><div class="dot d-${typeMap[m.type]||'s'}"></div>
+    <div><div class="ti-name">${m.name}</div><div class="ti-sub">${m.label} · ${m.cal}</div></div></div>`).join('');
+}
+
+// ── SYMPTOMS ──
+const SYM_LVLS = [['None','Mild','Moderate','Severe'],['None','<1hr','1-2hr','>2hr'],['None','Low','Medium','High'],['None','Mild','Moderate','Severe']];
+let symScores = [0,0,0,0]; let symEntries = [];
+function initSymptoms() {
+  [0,1,2,3].forEach(si => {
+    document.getElementById('sy-'+si).innerHTML = SYM_LVLS[si].map((l,li) => `<div class="sdot" id="sd-${si}-${li}" onclick="setScore(${si},${li})">${li}</div>`).join('');
+  });
+}
+function setScore(si, val) {
+  symScores[si]=val;
+  for(let l=0;l<4;l++) { const d=document.getElementById(`sd-${si}-${l}`); d.className='sdot'; if(l<=val) d.classList.add('s'+Math.min(val,3)); }
+}
+function saveSymptom() {
+  const notes = document.getElementById('sym-notes').value;
+  const date = new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  const symNames = ['Joint pain','Stiffness','Fatigue','Swelling'];
+  const labels = symNames.map((s,i)=>`${s}: ${SYM_LVLS[i][symScores[i]]}`).join(' · ');
+  symEntries.unshift({date,labels,notes});
+  document.getElementById('sym-entries').innerHTML = symEntries.map(e => `
+    <div class="saved-ent"><div class="saved-ent-d">${e.date}</div><div>${e.labels}</div>
+    ${e.notes?`<div style="margin-top:3px;font-style:italic;">${e.notes}</div>`:''}</div>`).join('');
+  document.getElementById('sym-notes').value='';
+}
+
+// ── NAV ──
+function nav(id, el) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.s-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('pg-'+id).classList.add('active');
+  el.classList.add('active');
+}
+
+// ── INIT ──
+renderToday(); renderShop(); renderLog(); renderQA(); initSymptoms(); initTags(); loadCached();
+</script>
+</body>
+</html>
